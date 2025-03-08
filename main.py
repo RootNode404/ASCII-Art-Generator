@@ -1,3 +1,6 @@
+# Code made by RootNode404
+# Github Link: https://github.com/RootNode404/ASCII-Art-Generator
+
 from PyQt6.QtWidgets import (
     QApplication, QWidget, QLabel, QPushButton, QVBoxLayout, QFileDialog,
     QCheckBox, QSpinBox, QComboBox, QLineEdit, QMessageBox, QSystemTrayIcon
@@ -23,13 +26,18 @@ class AsciiArtApp(QWidget):
 
         layout = QVBoxLayout()
 
-        self.color_options_label = QLabel("Color:")
+        self.color_options_label = QLabel("ASCII Color:")
         self.color_options = QComboBox()
         self.color_options.addItems(["Black & White", "RGB"])
         self.color_options.setCurrentIndex(1)
 
         self.auto_open_checkbox = QCheckBox("Auto Open:")
         self.auto_open_checkbox.stateChanged.connect(self.autoOpenToggle)
+
+        self.background_color_label = QLabel("Background Color:")
+        self.background_color_options = QComboBox()
+        self.background_color_options.addItems(["Red", "Orange", "Yellow", "Green", "Blue", "Purple", "Violet", "White", "Black"])
+        self.background_color_options.setCurrentIndex(8)
 
         self.print_location_label = QLabel("Print location:")
         self.print_location_options = QComboBox()
@@ -69,6 +77,8 @@ class AsciiArtApp(QWidget):
         # Set the layout
         layout.addWidget(self.color_options_label)
         layout.addWidget(self.color_options)
+        layout.addWidget(self.background_color_label)
+        layout.addWidget(self.background_color_options)
         layout.addWidget(self.print_location_label)
         layout.addWidget(self.print_location_options)
         layout.addWidget(self.resolution_spinbox_label)
@@ -105,15 +115,17 @@ class AsciiArtApp(QWidget):
             print_location = self.print_location_options.currentText()
             art_resolution = self.resolution_spinbox.value()
             custom_chars = self.custom_chars_entry.text()
-            filePath = "ascii-html.html"
+            file_path = "ascii-html.html"
+            background_color = self.background_color_options.currentText().lower()
 
             if print_location == "Terminal":
                 self.ImgFile.to_terminal(columns=art_resolution, monochrome=monochrome, char=custom_chars)
             elif print_location == "HTML File":
-                self.ImgFile.to_html_file(path="ascii-html.html", columns=art_resolution, monochrome=monochrome, char=custom_chars)
+                self.ImgFile.to_html_file(path="ascii-html.html", columns=art_resolution, monochrome=monochrome, char=custom_chars, additional_styles=f"background-color: {background_color}; border-color: {background_color}; font-weight: 1000;")
 
             if self.autoOpen:
-                webbrowser.open(filePath)
+                webbrowser.open(file_path)
+
 
             # Change the start button text to "Done"
             self.start_button.setText("Done")
@@ -158,6 +170,7 @@ class AsciiArtApp(QWidget):
         if val == "Terminal":
             self.auto_open_checkbox.setChecked(False)
             self.auto_open_checkbox.setEnabled(False)
+            self.background_color_options.setEnabled(False)
         else:
             self.auto_open_checkbox.setEnabled(True)
 
