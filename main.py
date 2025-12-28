@@ -1,6 +1,7 @@
 # Code made by RootNode404
 # Github Link: https://github.com/RootNode404/ASCII-Art-Generator
 
+# Import only the required modules
 from PyQt6.QtWidgets import (
     QApplication, QWidget, QLabel, QPushButton, QVBoxLayout, QFileDialog,
     QCheckBox, QSpinBox, QComboBox, QLineEdit, QMessageBox, QSystemTrayIcon
@@ -9,6 +10,7 @@ from PyQt6 import QtGui
 import ascii_magic as am
 import os, webbrowser, sys
 
+# Main class
 class AsciiArtApp(QWidget):
     def __init__(self):
         super().__init__()
@@ -18,7 +20,7 @@ class AsciiArtApp(QWidget):
         self.fromClipboard = False
         self.autoOpen = False
 
-
+    # Build the ui
     def initUI(self):
         self.setWindowTitle("Ascii Art Generator")
         self.setWindowIcon(QtGui.QIcon("./assets/icon.png"))
@@ -95,10 +97,12 @@ class AsciiArtApp(QWidget):
         # Push it to the gui
         self.setLayout(layout)
 
-    # The main function
+    # The main function to be run on "generate"
     def start(self):
+
+        # Check for clipboard/file content if applicable
         try:
-            if self.fromClipboard:
+            if self.fromClipboard == True:
                 error = self.openFromClipboard()
                 if error:
                     return
@@ -112,18 +116,21 @@ class AsciiArtApp(QWidget):
             elif self.color_options.currentText() == "RGB":
                 monochrome = False
 
+            # Grab some vars from the inputs
             print_location = self.print_location_options.currentText()
             art_resolution = self.resolution_spinbox.value()
             custom_chars = self.custom_chars_entry.text()
             file_path = "ascii-html.html"
             background_color = self.background_color_options.currentText().lower()
 
+            # Print to terminal or save to html file
             if print_location == "Terminal":
                 self.ImgFile.to_terminal(columns=art_resolution, monochrome=monochrome, char=custom_chars)
             elif print_location == "HTML File":
                 self.ImgFile.to_html_file(path="ascii-html.html", columns=art_resolution, monochrome=monochrome, char=custom_chars, additional_styles=f"background-color: {background_color}; border-color: {background_color}; font-weight: 1000;")
 
-            if self.autoOpen:
+            # Auto open if True
+            if self.autoOpen == True:
                 webbrowser.open(file_path)
 
 
@@ -135,28 +142,34 @@ class AsciiArtApp(QWidget):
 
         self.start_button.setText("Generate")
 
+    # Use ccustom characters checkbox toggle
     def customCharToggle(self, state):
         self.custom_chars_entry.setEnabled(state == 2)
         self.custom_chars_entry.clear()
 
+    # Grab image file from clipboard toggle
     def fromClipboardToggle(self, state):
         self.fromClipboard = state == 2
         self.file_path_entry.setEnabled(not self.fromClipboard)
         self.open_file_button.setEnabled(not self.fromClipboard)
 
+    # Auto open toggle
     def autoOpenToggle(self, state):
         self.autoOpen = state == 2
 
+    # Error handler. Brings up a popup
     def raiseError(self, title, message):
         QMessageBox.warning(self, title, message)
 
+    # Function to grab iage from file
     def openFromFile(self):
         file_open, _ = QFileDialog.getOpenFileName(self, "Open Image File", "", "Images (*.png *.jpg *.jpeg)")
         if file_open:
             self.file = file_open
             self.ImgFile = am.from_image(self.file)
             self.file_path_entry.setText(self.file)
-
+    
+    # Function to grab image from clipboard
     def openFromClipboard(self):
         try:
             self.ImgFile = am.from_clipboard()
@@ -165,6 +178,7 @@ class AsciiArtApp(QWidget):
             return True
         return False
 
+    # Print location handle
     def printComboBox(self):
         val = self.print_location_options.currentText()
         if val == "Terminal":
@@ -174,6 +188,7 @@ class AsciiArtApp(QWidget):
         else:
             self.auto_open_checkbox.setEnabled(True)
 
+# Run app
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = AsciiArtApp()
